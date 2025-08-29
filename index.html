@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Symptom Checker</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #74ebd5, #9face6);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      background: #fff;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      max-width: 500px;
+      width: 90%;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      font-size: 24px;
+      color: #333;
+    }
+
+    select {
+      padding: 10px;
+      width: 100%;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+      transition: transform 0.2s ease-in-out;
+    }
+
+    select:hover {
+      transform: scale(1.03);
+      border-color: #666;
+    }
+
+    button {
+      padding: 12px 20px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background 0.3s ease-in-out;
+    }
+
+    button:hover {
+      background: #45a049;
+    }
+    .first-aid {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #ffe6e6;
+    border: 2px solid red;
+    border-radius: 10px;
+    font-size: 18px;
+    color: #b30000;
+    font-weight: bold;
+    display: none;
+    animation: fadeIn 1s ease-in-out;
+  }
+
+    #result {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #222;
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    /* Emergency Shake */
+    @keyframes shake {
+      0% { transform: translate(1px, 1px) rotate(0deg); }
+      10% { transform: translate(-1px, -2px) rotate(-1deg); }
+      20% { transform: translate(-3px, 0px) rotate(1deg); }
+      30% { transform: translate(3px, 2px) rotate(0deg); }
+      40% { transform: translate(1px, -1px) rotate(1deg); }
+      50% { transform: translate(-1px, 2px) rotate(-1deg); }
+      60% { transform: translate(-3px, 1px) rotate(0deg); }
+      70% { transform: translate(3px, 1px) rotate(-1deg); }
+      80% { transform: translate(-1px, -1px) rotate(1deg); }
+      90% { transform: translate(1px, 2px) rotate(-1deg); }
+      100% { transform: translate(1px, -2px) rotate(-1deg); }
+    }@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+    .emergency {
+      animation: shake 0.5s;
+      animation-iteration-count: 40; /* 20 seconds */
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="mainContainer">
+    <h1>🩺 Symptom Checker (அறிகுறி சரிபார்ப்பான் / लक्षण चेकर)</h1>
+    
+    <!-- Symptom dropdown -->
+    <select id="symptom">
+      <option value="">-- Select Your Problem --</option>
+      <option value="chest_pain">Chest Pain (மார்பு வலி / सीने में दर्द)</option>
+      <option value="headache">Headache (தலைவலி / सिरदर्द)</option>
+      <option value="breathing">Difficulty Breathing (சுவாசிக்க சிரமம் / सांस लेने में कठिनाई)</option>
+      <option value="unconscious">Unconscious (மயக்கம் / बेहोश)</option>
+      <option value="fever">Fever (காய்ச்சல் / बुखार)</option>
+      <option value="nausea">Nausea (வாந்தி / मतली)</option>
+      <option value="abdominal_pain">Abdominal Pain (வயிற்று வலி / पेट दर्द)</option>
+      <option value="back_pain">Back Pain (முதுகு வலி / पीठ दर्द)</option>
+      <option value="cough">Cough (இருமல் / खाँसी)</option>
+      <option value="diarrhea">Diarrhea (வயிற்றுப்போக்கு / दस्त)</option>
+      <option value="severe_bleeding">Severe Bleeding (தீவிர இரத்தக் கசிவு / गंभीर रक्तस्राव)</option>
+
+    </select>
+    
+
+
+
+    <!-- ✅ Language dropdown (added from second code) -->
+    <select id="lang">
+      <option value="en">English</option>
+      <option value="ta">தமிழ்</option>
+      <option value="hi">हिंदी</option>
+    </select>
+
+    <button onclick="checkSymptom()">Check</button>
+    <div id="result"></div>
+    <div id="firstAidBox" class="first-aid"></div>
+
+  </div>
+
+  
+
+
+<script>
+    // Normal Advice
+    const adviceMap = {
+      fever: {
+        en: "Drink fluids and rest. If high fever, consult doctor.",
+        ta: "திரவம் குடித்து ஓய்வு எடுங்கள். அதிக காய்ச்சல் இருந்தால், மருத்துவரை அணுகவும்.",
+        hi: "तरल पदार्थ पिएं और आराम करें। तेज बुखार हो तो डॉक्टर से संपर्क करें।"
+      },
+      headache: {
+        en: "Take rest and stay hydrated.",
+        ta: "ஓய்வு எடுத்து திரவம் குடிக்கவும்.",
+        hi: "आराम करें और पानी पिएं।"
+      },
+      diarrhea: {
+        en: "Drink ORS solution to prevent dehydration.",
+        ta: "நீரிழப்பு தவிர்க்க ஓஆர்எஸ் குடிக்கவும்.",
+        hi: "पानी की कमी से बचने के लिए ओआरएस पिएं।"
+      }
+    };
+
+    // First Aid Advice for Emergency
+    const firstAidAdvice = {
+      chest_pain: {
+        en: "Make the patient sit down, loosen tight clothes, and wait for ambulance.",
+        ta: "நோயாளியை உட்கார வைத்து, இறுக்கமான ஆடைகளை தளர்த்தி, ஆம்புலன்ஸை காத்திருக்கவும்.",
+        hi: "मरीज को बैठाएं, तंग कपड़े ढीले करें और एम्बुलेंस का इंतजार करें।"
+      },
+      breathing: {
+        en: "Help patient sit upright and give fresh air.",
+        ta: "நோயாளியை நேராக உட்கார வையுங்கள் மற்றும் சுத்தமான காற்று அளிக்கவும்.",
+        hi: "मरीज को सीधा बैठाएं और ताज़ी हवा दें।"
+      },
+      unconscious: {
+        en: "Check breathing and pulse. Place patient on side position.",
+        ta: "ta:மூச்சு மற்றும் இதய துடிப்பு சரிபார்க்கவும். நோயாளியை பக்கவாட்டில் படுக்கவையுங்கள்.",
+        hi: "सांस और नाड़ी जांचें। मरीज को करवट पर लिटाएं।"
+      },
+      severe_bleeding: {
+        en: "Apply firm pressure on wound with clean cloth. Do not remove cloth if soaked.",
+        ta: "சுத்தமான துணியால் காயத்தில் அழுத்தம் கொடுக்கவும். துணி நனைந்தால் அதை அகற்ற வேண்டாம்.",
+        hi: "घाव पर साफ कपड़े से दबाव डालें। कपड़ा भीग जाए तो उसे न हटाएं।"
+      }
+    };
+
+    // Text to Speech
+    function speak(message) {
+      const utterance = new SpeechSynthesisUtterance(message);
+      speechSynthesis.speak(utterance);
+    }
+
+    // Symptom Check
+    function checkSymptom() {
+      const symptom = document.getElementById("symptom").value;
+      const lang = document.getElementById("lang").value;
+      const resultDiv = document.getElementById("result");
+      const container = document.getElementById("mainContainer");
+
+      if (!symptom) {
+        resultDiv.innerHTML = "⚠️ Please select a symptom.";
+        return;
+      }
+
+      // Emergency Symptoms
+      const emergencySymptoms = ["chest_pain", "breathing", "unconscious", "severe_bleeding"];
+      
+      if (emergencySymptoms.includes(symptom)) {
+        container.classList.add("emergency");
+
+        // 🚨 Emergency Messages
+        const emergencyMessages = {
+          en: "🚨 Emergency detected! Call 108 immediately!",
+          ta: "🚨 அவசர நிலை! உடனே 108 அழைக்கவும்!",
+          hi: "🚨 आपातकाल! तुरंत 108 पर कॉल करें!"
+        };
+        resultDiv.innerHTML = emergencyMessages[lang];
+        speak(emergencyMessages[lang]);
+
+        // 🩹 Show First Aid
+        if (firstAidAdvice[symptom]) {
+          document.getElementById("firstAidBox").innerText = firstAidAdvice[symptom][lang];
+          document.getElementById("firstAidBox").style.display = "block";
+        }
+
+        // Stop shaking after 20 sec
+        setTimeout(() => {
+          container.classList.remove("emergency");
+        }, 20000);
+
+      } else {
+        // ✅ Normal Advice
+        document.getElementById("firstAidBox").style.display = "none";
+        if (adviceMap[symptom] && adviceMap[symptom][lang]) {
+          resultDiv.innerHTML = "✅ " + adviceMap[symptom][lang];
+          speak(adviceMap[symptom][lang]);
+        } else {
+          resultDiv.innerHTML = "✅ Please consult a doctor.";
+          speak("Please consult a doctor.");
+        }
+      }
+    }
+  </script>
+</body>
+</html>
+
