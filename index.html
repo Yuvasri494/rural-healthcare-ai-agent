@@ -221,9 +221,11 @@
 
     // Text to Speech
     function speak(message) {
-      const utterance = new SpeechSynthesisUtterance(message);
-      speechSynthesis.speak(utterance);
-    }
+  const utterance = new SpeechSynthesisUtterance(message);
+  utterance.rate = 1.5; // 🔥 faster voice
+  speechSynthesis.speak(utterance);
+}
+
 
     // Symptom Check
     function checkSymptom() {
@@ -278,6 +280,7 @@
   </script>
 </body>
 </html>
+
 
 
 
