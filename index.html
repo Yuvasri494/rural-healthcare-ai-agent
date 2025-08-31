@@ -221,10 +221,11 @@
 
     // Text to Speech
     function speak(message) {
+  speechSynthesis.cancel(); // 🔥 clears old queued speech
   const utterance = new SpeechSynthesisUtterance(message);
-  utterance.rate = 1.5; // 🔥 faster voice
   speechSynthesis.speak(utterance);
 }
+
 
 
     // Symptom Check
@@ -280,6 +281,7 @@
   </script>
 </body>
 </html>
+
 
 
 
