@@ -1,0 +1,6 @@
+pandas
+pyttsx3
+SpeechRecognition
+colorama
+fuzzywuzzy
+python-Levenshtein
