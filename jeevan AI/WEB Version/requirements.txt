@@ -4,3 +4,4 @@ pandas
 fuzzywuzzy
 python-Levenshtein
 gtts
+gunicorn
