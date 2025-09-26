@@ -1,1 +1,1595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rural Healthcare AI Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 900px;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+            min-height: 600px;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #4CAF50, #2196F3, #FF9800);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            font-weight: 400;
+        }
+
+        .disclaimer {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+            background: #fff3cd;
+            padding: 10px;
+            border-radius: 10px;
+            border-left: 4px solid #ff9800;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .language-selector {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .lang-prompt {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            margin: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            min-width: 150px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .main-menu {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .menu-btn {
+            padding: 20px;
+            font-size: 18px;
+            border-radius: 15px;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .input-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+        }
+
+        .input-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .text-input {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 16px;
+            min-width: 200px;
+        }
+
+        .text-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .voice-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .voice-btn {
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 14px;
+            min-width: 120px;
+        }
+
+        .voice-status {
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-weight: 500;
+        }
+
+        .listening {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .processing {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .results {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+        }
+
+        .symptom-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin: 20px 0;
+        }
+
+        .symptom-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .symptom-name {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .confidence {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .severity {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            margin: 10px 0;
+        }
+
+        .severity.H {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .severity.D {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .severity.E {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .advice-section {
+            margin: 15px 0;
+            padding: 15px;
+            background: #f1f3f4;
+            border-radius: 10px;
+        }
+
+        .section-title {
+            font-weight: 600;
+            color: #444;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .symptoms-list {
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+        }
+
+        .symptom-item {
+            padding: 12px;
+            margin: 8px 0;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 10px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .back-btn {
+            background: #6c757d !important;
+            margin-bottom: 20px;
+        }
+
+        .usage-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .general-advice {
+            background: #e8f5e9;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 5px solid #4CAF50;
+        }
+
+        .advice-list {
+            margin: 15px 0;
+            padding-left: 20px;
+        }
+
+        .advice-list li {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .input-controls {
+                flex-direction: column;
+            }
+            
+            .text-input {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Language Selection Screen -->
+        <div id="language-screen" class="screen active">
+            <div class="language-selector">
+                <div class="lang-prompt">🌐 Select language / भाषा चुनें / மொழியைத் தேர்ந்தெடுக்கவும்</div>
+                <button class="btn" onclick="selectLanguage('english')">1. English</button>
+                <button class="btn" onclick="selectLanguage('hindi')">2. हिंदी</button>
+                <button class="btn" onclick="selectLanguage('tamil')">3. தமிழ்</button>
+            </div>
+        </div>
+
+        <!-- Main Menu Screen -->
+        <div id="main-screen" class="screen">
+            <h1 id="main-title">🏥 RURAL HEALTHCARE AI ASSISTANT 🏥</h1>
+            <div id="disclaimer" class="disclaimer">
+                ⚠️ DISCLAIMER: Basic guidance only. Consult doctors for serious cases.
+            </div>
+            
+            <div class="main-menu">
+                <button class="btn menu-btn" onclick="showSymptomDiagnosis()">
+                    <div>
+                        <div style="font-size: 24px; margin-bottom: 5px;">🩺</div>
+                        <div id="menu-diagnosis">Symptom Diagnosis</div>
+                    </div>
+                </button>
+                
+                <button class="btn menu-btn" onclick="showLanguageSelector()">
+                    <div>
+                        <div style="font-size: 24px; margin-bottom: 5px;">🌐</div>
+                        <div id="menu-language">Change Language</div>
+                    </div>
+                </button>
+                
+                <button class="btn menu-btn" onclick="showAllSymptoms()">
+                    <div>
+                        <div style="font-size: 24px; margin-bottom: 5px;">📊</div>
+                        <div id="menu-symptoms">View All Symptoms</div>
+                    </div>
+                </button>
+                
+                <button class="btn menu-btn" onclick="showUsageStats()">
+                    <div>
+                        <div style="font-size: 24px; margin-bottom: 5px;">📈</div>
+                        <div id="menu-stats">Usage Statistics</div>
+                    </div>
+                </button>
+            </div>
+            <div style="text-align: center; margin: 20px 0;">
+                <button class="btn voice-btn" id="emergencyBtnMain" onclick="emergencyAlert()">🚨 Emergency</button>
+            </div>
+        </div>
+        
+        <!-- Symptom Diagnosis Screen -->
+        <div id="diagnosis-screen" class="screen">
+            <button class="btn back-btn" onclick="showMainMenu()" id="back-btn">← Back to Menu</button>
+            <h2 id="diagnosis-title">🩺 Symptom Diagnosis</h2>
+            
+            <div class="input-section">
+                <div id="input-prompt">🩺 Describe your symptom:</div>
+                
+                <div class="input-controls">
+                    <input type="text" id="symptom-input" class="text-input" placeholder="Type your symptom here...">
+                    <div class="voice-controls">
+                        <button class="btn voice-btn" id="voice-btn" onclick="startVoiceInput()">🎤 Voice</button>
+                        <button class="btn voice-btn" onclick="processSymptom()" id="analyze-btn">🔍 Analyze</button>
+                    </div>
+                </div>
+                
+                <div id="voice-status" class="voice-status" style="display: none;"></div>
+            </div>
+            
+            <div id="results" class="results" style="display: none;"></div>
+            <div class="voice-controls">
+                <button class="btn" id="emergencyBtn" onclick="emergencyAlert()">🚨 Emergency</button>
+            </div>
+        </div>
+
+        <!-- All Symptoms Screen -->
+        <div id="symptoms-screen" class="screen">
+            <button class="btn back-btn" onclick="showMainMenu()" id="back-btn2">← Back to Menu</button>
+            <h2 id="symptoms-title">📊 All Symptoms Database</h2>
+            <div id="symptoms-list" class="symptoms-list">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <div>Loading symptoms...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Usage Statistics Screen -->
+        <div id="stats-screen" class="screen">
+            <button class="btn back-btn" onclick="showMainMenu()" id="back-btn3">← Back to Menu</button>
+            <h2 id="stats-title">📈 Usage Statistics</h2>
+            <div id="usage-stats" class="usage-stats">
+                <div class="stat-card">
+                    <div class="stat-number" id="total-queries">0</div>
+                    <div class="stat-label" id="queries-label">Total Queries</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="voice-queries">0</div>
+                    <div class="stat-label" id="voice-label">Voice Queries</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="successful-matches">0</div>
+                    <div class="stat-label" id="matches-label">Successful Matches</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Global variables
+        let currentLanguage = 'english';
+        let isListening = false;
+        let recognition = null;
+        let usageStats = {
+            totalQueries: 0,
+            voiceQueries: 0,
+            successfulMatches: 0
+        };
+
+        // Save stats to memory (since localStorage not supported)
+        function saveStats() {
+            // Stats will persist only during this session
+        }
+
+        // Translations
+        const translations = {
+            'welcome_title': {
+                'english': "🏥 RURAL HEALTHCARE AI ASSISTANT 🏥",
+                'hindi': "🏥 ग्रामीण स्वास्थ्य एआई सहायक 🏥",
+                'tamil': "🏥 கிராமப்புற சுகாதார AI உதவியாளர் 🏥"
+            },
+            'disclaimer': {
+                'english': "⚠️ DISCLAIMER: Basic guidance only. Consult doctors for serious cases.",
+                'hindi': "⚠️ अस्वीकरण: केवल बुनियादी मार्गदर्शन। गंभीर मामलों में डॉक्टर से संपर्क करें।",
+                'tamil': "⚠️ முறைச்சாட்டு: அடிப்படை வழிகாட்டுதல்தான். நுணுक்கமான வழக்குகளில் மருத்துவரை அணுகவும்."
+            },
+            'menu_diagnosis': {
+                'english': "Symptom Diagnosis",
+                'hindi': "लक्षण निदान",
+                'tamil': "அறிகுறி பரிசோதனை"
+            },
+            'menu_language': {
+                'english': "Change Language",
+                'hindi': "भाषा बदलें",
+                'tamil': "மொழியை மாற்றவும்"
+            },
+            'menu_symptoms': {
+                'english': "View All Symptoms",
+                'hindi': "सभी लक्षण देखें",
+                'tamil': "அனைத்து அறிகுறிகளையும் காண்க"
+            },
+            'menu_stats': {
+                'english': "Usage Statistics",
+                'hindi': "उपयोग आंकड़े",
+                'tamil': "பயன்பாட்டு புள்ளிவிவரங்கள்"
+            },
+            'diagnosis_title': {
+                'english': "🩺 Symptom Diagnosis",
+                'hindi': "🩺 लक्षण निदान",
+                'tamil': "🩺 அறிகுறி பரிசோதனை"
+            },
+            'symptoms_title': {
+                'english': "📊 All Symptoms Database",
+                'hindi': "📊 सभी लक्षण डेटाबेस",
+                'tamil': "📊 அனைத்து அறிகுறிகளின் தரவுத்தளம்"
+            },
+            'stats_title': {
+                'english': "📈 Usage Statistics",
+                'hindi': "📈 उपयोग आंकड़े",
+                'tamil': "📈 பயன்பாட்டு புள்ளிவிவரங்கள்"
+            },
+            'back_menu': {
+                'english': "← Back to Menu",
+                'hindi': "← मेनू पर वापस",
+                'tamil': "← மெனுவிற்குத் திரும்பு"
+            },
+            'describe_symptom': {
+                'english': "🩺 Describe your symptom:",
+                'hindi': "🩺 अपने लक्षण का वर्णन करें:",
+                'tamil': "🩺 உங்கள் அறிகுறியை விவரிக்கவும்:"
+            },
+            'voice_input': {
+                'english': "🎤 Voice",
+                'hindi': "🎤 आवाज़",
+                'tamil': "🎤 குரல்"
+            },
+            'analyze': {
+                'english': "🔍 Analyze",
+                'hindi': "🔍 विश्लेषण",
+                'tamil': "🔍 பகுப்பாய்வு"
+            },
+            'listening': {
+                'english': "🎤 Listening... Speak now",
+                'hindi': "🎤 सुन रहे हैं... अब बोलें",
+                'tamil': "🎤 கேட்டுக் கொண்டிருக்கிறது... இப்போது பேசுங்கள்"
+            },
+            'processing': {
+                'english': "⏳ Processing your input...",
+                'hindi': "⏳ आपकी बात को समझ रहे हैं...",
+                'tamil': "⏳ உங்கள் உள்ளீட்டை செயலாக்குகிறது..."
+            },
+            'no_match': {
+                'english': "I couldn't find an exact match for your symptom. Here are some general healthcare tips:",
+                'hindi': "मुझे आपके लक्षण का सटीक मेल नहीं मिला। यहां कुछ सामान्य स्वास्थ्य देखभाल युक्तियां दी गई हैं:",
+                'tamil': "உங்கள் அறிகுறிக்கான சரியான பொருத்தத்தை என்னால் கண்டுபிடிக்க முடியவில்லை. இங்கு சில பொது சுகாதார உதவிக்குறிப்புகள் உள்ளன:"
+            },
+            'voice_error': {
+                'english': "Voice not recognized. Please try again or use text input.",
+                'hindi': "आवाज़ पहचानी नहीं गई। कृपया फिर से कोशिश करें या टेक्स्ट का उपयोग करें।",
+                'tamil': "குரல் அறியப்படவில்லை. மீண்டும் முயற்சிக்கவும் அல்லது உரை உள்ளீட்டைப் பயன்படுத்தவும்."
+            },
+            'symptom_label': {
+                'english': "📋 Symptom",
+                'hindi': "📋 लक्षण",
+                'tamil': "📋 அறிகுறி"
+            },
+            'confidence_label': {
+                'english': "🎯 Confidence",
+                'hindi': "🎯 विश्वास",
+                'tamil': "🎯 நம்பிக்கை"
+            },
+            'severity_label': {
+                'english': "⚠️ Severity",
+                'hindi': "⚠️ गंभीरता",
+                'tamil': "⚠️ தீவிரம்"
+            },
+            'advice_label': {
+                'english': "💡 Advice",
+                'hindi': "💡 सलाह",
+                'tamil': "💡 ஆலோசனை"
+            },
+            'first_aid_label': {
+                'english': "🩹 First Aid",
+                'hindi': "🩹 प्राथमिक उपचार",
+                'tamil': "🩹 முதலுதவி"
+            },
+            'emergency_button': {
+                'english': "🚨 Emergency",
+                'hindi': "🚨 आपातकालीन",
+                'tamil': "🚨 அவசரம்"
+            },
+            'emergency_alert': {
+                'english': "Emergency alert sent! Please wait for the ambulance and follow first aid instructions.",
+                'hindi': "आपातकालीन सूचना भेजी गई! कृपया एम्बुलेंस का इंतजार करें और प्राथमिक उपचार का पालन करें।",
+                'tamil': "அவசரச் சிக்னல் அனுப்பப்பட்டது! அம்புலன்ஸ் வருவதைக் காத்திருந்து முதலுதவி வழிமுறைகளை பின்பற்றவும்."
+            },
+            'general_health_tips': {
+                'english': [
+                    "💧 Stay hydrated by drinking plenty of water throughout the day",
+                    "🥗 Eat a balanced diet with fruits and vegetables",
+                    "😴 Get 7-8 hours of quality sleep each night",
+                    "🧘 Practice stress-reduction techniques like deep breathing",
+                    "🚶 Stay active with regular light exercise",
+                    "🧼 Wash hands frequently to prevent infections",
+                    "🌞 Get some sunlight exposure for vitamin D",
+                    "🚭 Avoid smoking and limit alcohol consumption"
+                ],
+                'hindi': [
+                    "💧 दिन भर में खूब पानी पीकर हाइड्रेटेड रहें",
+                    "🥗 फलों और सब्जियों के साथ संतुलित आहार लें",
+                    "😴 हर रात 7-8 घंटे की गुणवत्तापूर्ण नींद लें",
+                    "🧴 गहरी सांस लेने जैसी तनाव कम करने वाली तकनीकों का अभ्यास करें",
+                    "🚶 नियमित हल्के व्यायाम से सक्रिय रहें",
+                    "🧼 संक्रमण को रोकने के लिए बार-बार हाथ धोएं",
+                    "🌞 विटामिन डी के लिए कुछ धूप लें",
+                    "🚭 धूम्रपान से बचें और शराब का सेवन सीमित करें"
+                ],
+                'tamil': [
+                    "💧 நாள் முழுவதும் நிறைய தண்ணீர் குடித்து நீரேற்றம் செய்யுங்கள்",
+                    "🥗 பழங்கள் மற்றும் காய்கறிகளுடன் சமச்சீர் உணவை உண்ணுங்கள்",
+                    "😴 ஒவ்வொரு இரவும் 7-8 மணி நேரம் தரமான தூக்கம் பெறுங்கள்",
+                    "🧴 ஆழ்மூச்சு போன்ற மன அழுத்தக் குறைப்பு நுட்பங்களை பயிற்சி செய்யுங்கள்",
+                    "🚶 வழக்கமான இலகுவான உடற்பயிற்சியுடன் சுறுசுறுப்பாக இருங்கள்",
+                    "🧼 தொற்றுநோய்களைத் தடுக்க அடிக்கடி கைகளை கழுவுங்கள்",
+                    "🌞 வைட்டமின் டி-க்கு சிறிது சூரிய ஒளி பெறுங்கள்",
+                    "🚭 புகைப்பதைத் தவிர்த்து மது அருந்துவதை கட்டுப்படுத்துங்கள்"
+                ]
+            }
+        };
+
+        // Symptom database with multilingual support
+        const symptoms = {
+            'fever': {
+                name: { english: "Fever", hindi: "बुखार", tamil: "காய்ச்சல்" },
+                severity: "H",
+                confidence: 85,
+                advice: {
+                    english: "Take rest and drink plenty of fluids. Use cold compress on forehead.",
+                    hindi: "आराम करें और खूब पानी पिएं। माथे पर ठंडी पट्टी रखें।",
+                    tamil: "ஓய்வு எடுத்து நிறைய நீர் குடிக்கவும். நெற்றியில் குளிர்ந்த ஒத்தடம் கொடுக்கவும்."
+                },
+                first_aid: {
+                    english: "Rest in cool place, remove excess clothing, apply wet cloth on forehead",
+                    hindi: "ठंडी जगह आराम करें, अतिरिक्त कपड़े उतारें",
+                    tamil: "குளிர்ந்த இடத்தில் ஓய்வு, கூடுதல் உடைகளை அகற்றவும்"
+                }
+            },
+            'common_cold': {
+                name: { english: "Common Cold", hindi: "सर्दी", tamil: "சளி" },
+                severity: "H",
+                confidence: 90,
+                advice: {
+                    english: "Stay hydrated and rest well. Gargle with warm salt water.",
+                    hindi: "खूब पानी पिएं और आराम करें। गर्म नमकीन पानी से गरारे करें।",
+                    tamil: "நீர்ச்சத்துடன் இருக்கவும். வெதுவெதுப்பான உப்பு நீரில் கொப்பளிக்கவும்."
+                },
+                first_aid: {
+                    english: "Encourage rest and fluid intake, warm salt water gargling",
+                    hindi: "आराम और द्रव सेवन को बढ़ावा दें",
+                    tamil: "ஓய்வு மற்றும் நீர் உட்கொள்ளலை ஊக்குவிக்கவும்"
+                }
+            },
+            'headache': {
+                name: { english: "Headache", hindi: "सिर दर्द", tamil: "தலைவலி" },
+                severity: "H",
+                confidence: 80,
+                advice: {
+                    english: "Take rest in dark quiet room. Apply cold compress.",
+                    hindi: "अंधेरे और शांत कमरे में आराम करें। ठंडी सिकाई करें।",
+                    tamil: "இருண்ட அமைதியான அறையில் ஓய்வு எடுக்கவும். குளிர் ஒத்தடம் கொடுக்கவும்."
+                },
+                first_aid: {
+                    english: "Lie down in quiet dark room, apply cold compress to head",
+                    hindi: "शांत अंधेरे कमरे में लेट जाएं",
+                    tamil: "அமைதியான இருண்ட அறையில் படுக்கவும்"
+                }
+            },
+            'stomach_pain': {
+                name: { english: "Stomach Pain", hindi: "पेट दर्द", tamil: "வயிற்றுவலி" },
+                severity: "D",
+                confidence: 75,
+                advice: {
+                    english: "Avoid solid food for few hours. Take small sips of water.",
+                    hindi: "कुछ घंटों तक ठोस भोजन न लें। थोड़ा-थोड़ा पानी पिएं।",
+                    tamil: "சில மணி நேரம் திட உணவு தவிர்க்கவும். கொஞ்சம் கொஞ்சமாக தண்ணீர் குடிக்கவும்."
+                },
+                first_aid: {
+                    english: "Apply gentle heat to abdomen, avoid solid foods",
+                    hindi: "पेट पर हल्की गर्माहट दें",
+                    tamil: "வயிற்றில் மெதுவான சூட்டைக் கொடுக்கவும்"
+                }
+            },
+            'diarrhea': {
+                name: { english: "Diarrhea", hindi: "दस्त", tamil: "வயிற்றுப்போக்கு" },
+                severity: "D",
+                confidence: 85,
+                advice: {
+                    english: "Drink ORS solution frequently. Eat light foods like rice.",
+                    hindi: "ORS का घोल बार-बार पिएं। चावल जैसा हल्का खाना खाएं।",
+                    tamil: "ORS கரைசலை அடிக்கடி குடிக்கவும். அரிசி போன்ற எளிய உணவு எடுக்கவும்."
+                },
+                first_aid: {
+                    english: "Give ORS solution immediately, continue breastfeeding if infant",
+                    hindi: "तुरंत ORS का घोल दें",
+                    tamil: "உடனே ORS கரைசல் கொடுக்கவும்"
+                }
+            },
+            'cough': {
+                name: { english: "Cough", hindi: "खांसी", tamil: "இருமல்" },
+                severity: "H",
+                confidence: 80,
+                advice: {
+                    english: "Drink warm water with honey. Use steam inhalation.",
+                    hindi: "शहद के साथ गर्म पानी पिएं। भाप लें।",
+                    tamil: "தேனுடன் வெதுவெதுப்பான நீர் குடிக்கவும். நீராவி பிடிக்கவும்."
+                },
+                first_aid: {
+                    english: "Warm honey water, steam inhalation",
+                    hindi: "गर्म शहद पानी दें, भाप दिलवाएं",
+                    tamil: "வெதுவெதுப்பான தேன் நீர், நீராவி"
+                }
+            },
+            'snake_bite': {
+                name: { english: "Snake Bite", hindi: "सांप का काटना", tamil: "பாம்பு கடித்தல்" },
+                severity: "E",
+                confidence: 95,
+                advice: {
+                    english: "DO NOT cut the wound. Keep patient calm. Rush to hospital.",
+                    hindi: "घाव को न काटें। मरीज़ को शांत रखें। तुरंत अस्पताल ले जाएं।",
+                    tamil: "காயத்தை வெட்ட வேண்டாம். நோயாளியை அமைதியாக வைக்கவும். உடனே மருத்துவமனைக்கு செல்லவும்."
+                },
+                first_aid: {
+                    english: "Keep victim still and calm, transport to hospital immediately",
+                    hindi: "पीड़ित को शांत रखें, तुरंत अस्पताल ले जाएं",
+                    tamil: "பாதிக்கப்பட்டவரை அமைதியாக வைத்து உடனே மருத்துவமனைக்கு கொண்டு செல்லவும்"
+                }
+            },
+            'chest_pain': {
+                name: { english: "Chest Pain", hindi: "छाती में दर्द", tamil: "நெஞ்சு வலி" },
+                severity: "E",
+                confidence: 90,
+                advice: {
+                    english: "Stop all activity. Sit down and rest. Call emergency.",
+                    hindi: "सभी गतिविधियां बंद करें। बैठकर आराम करें। आपातकाल बुलाएं।",
+                    tamil: "அனைத்து செயல்பாடுகளையும் நிறுத்தவும். உட்கார்ந்து ஓய்வு எடுக்கவும். அவசர சேவையை அழைக்கவும்."
+                },
+                first_aid: {
+                    english: "Have person sit and rest, call emergency services",
+                    hindi: "व्यक्ति को बिठाकर आराम दिलाएं",
+                    tamil: "நபரை உட்காரவைத்து ஓய்வு கொடுக்கவும்"
+                }
+            },
+            'high_fever': {
+                name: { english: "High Fever", hindi: "तेज बुखार", tamil: "அதிக காய்ச்சல்" },
+                severity: "D",
+                confidence: 85,
+                advice: {
+                    english: "Take paracetamol. Use cold sponging. Remove excess clothing.",
+                    hindi: "पैरासिटामोल लें। ठंडे पानी से स्पंज करें।",
+                    tamil: "பாராசிட்டமால் எடுக்கவும். குளிர்ந்த நீரில் துடைக்கவும்."
+                },
+                first_aid: {
+                    english: "Remove excess clothing, cold sponging, give paracetamol",
+                    hindi: "अतिरिक्त कपड़े हटाएं",
+                    tamil: "கூடுதல் உடைகளை அகற்றவும்"
+                }
+            },
+            'pregnancy_care': {
+                name: { english: "Pregnancy Care", hindi: "गर्भावस्था देखभाल", tamil: "கர்ப்பகால பராமரிப்பு" },
+                severity: "D",
+                confidence: 80,
+                advice: {
+                    english: "Take folic acid tablets. Eat nutritious food.",
+                    hindi: "फोलिक एसिड की गोली लें। पौष्टिक भोजन करें।",
+                    tamil: "ஃபோலிக் அமில மாத்திரைகள் எடுக்கவும். சத்தான உணவு சாப்பிடவும்."
+                },
+                first_aid: {
+                    english: "Ensure proper nutrition, prenatal vitamins",
+                    hindi: "उचित पोषण सुनिश्चित करें",
+                    tamil: "சரியான ஊட்டச்சத்தை உறுதி செய்யவும்"
+                }
+            },
+            'back_pain': {
+                name: { english: "Back Pain", hindi: "कमर दर्द", tamil: "முதுகுவலி" },
+                severity: "H",
+                confidence: 75,
+                advice: {
+                    english: "Apply hot or cold compress. Do gentle stretching.",
+                    hindi: "गर्म या ठंडी सिकाई करें। हल्की स्ट्रेचिंग करें।",
+                    tamil: "சூடான அல்லது குளிர்ந்த ஒத்தடம் கொடுக்கவும். மெதுவான பயிற்சி செய்யவும்."
+                },
+                first_aid: {
+                    english: "Apply heat or ice pack, gentle movement",
+                    hindi: "गर्म या बर्फ की पट्टी लगाएं",
+                    tamil: "சூடு அல்லது பனிக்கட்டி பயன்படுத்தவும்"
+                }
+            },
+            'cut_wound': {
+                name: { english: "Cut Wound", hindi: "कट घाव", tamil: "வெட்டு காயம்" },
+                severity: "H",
+                confidence: 85,
+                advice: {
+                    english: "Clean wound with water. Apply antiseptic.",
+                    hindi: "घाव को पानी से साफ करें। एंटीसेप्टिक लगाएं।",
+                    tamil: "காயத்தை தண்ணீரால் சுத்தம் செய்யவும். கிருமி நாசினி தடவவும்."
+                },
+                first_aid: {
+                    english: "Clean hands first, stop bleeding, clean wound gently",
+                    hindi: "पहले हाथ साफ करें, खून बंद करें",
+                    tamil: "முதலில் கைகளைச் சுத்தம் செய்யவும்"
+                }
+            },
+            'burn': {
+                name: { english: "Burn", hindi: "जला", tamil: "தீக்காயம்" },
+                severity: "D",
+                confidence: 80,
+                advice: {
+                    english: "Cool with water for 10 minutes. Do not use ice.",
+                    hindi: "10 मिनट तक पानी से ठंडा करें। बर्फ का इस्तेमाल न करें।",
+                    tamil: "10 நிமிடங்களுக்கு தண்ணீரால் குளிர்விக்கவும். பனிக்கட்டி பயன்படுத்த வேண்டாம்."
+                },
+                first_aid: {
+                    english: "Run cool water over burn, cover with clean cloth",
+                    hindi: "ठंडा पानी बहाएं, साफ कपड़े से ढकें",
+                    tamil: "குளிர்ந்த நீர் ஊற்றவும், சுத்தமான துணியால் மூடவும்"
+                }
+            },
+            'vomiting': {
+                name: { english: "Vomiting", hindi: "उल्टी", tamil: "வாந்தி" },
+                severity: "H",
+                confidence: 80,
+                advice: {
+                    english: "Stop eating. Take small sips of water.",
+                    hindi: "खाना बंद करें। थोड़ा-थोड़ा पानी पिएं।",
+                    tamil: "சாப்பிடுவதை நிறுத்தவும். கொஞ்சம் கொஞ்சமாக தண்ணீர் குடிக்கவும்."
+                },
+                first_aid: {
+                    english: "Keep hydrated with small sips, avoid solid food",
+                    hindi: "छोटी घूंट से पानी दें",
+                    tamil: "சிறிய அளவில் தண்ணீர் கொடுக்கவும்"
+                }
+            },
+            'dizziness': {
+                name: { english: "Dizziness", hindi: "चक्कर आना", tamil: "தலைச்சுற்றல்" },
+                severity: "H",
+                confidence: 75,
+                advice: {
+                    english: "Sit down immediately. Drink water slowly.",
+                    hindi: "तुरंत बैठ जाएं। धीरे-धीरे पानी पिएं।",
+                    tamil: "உடனே உட்கார்ந்து கொள்ளுங்கள். மெதுவாக தண்ணீர் குடிக்கவும்."
+                },
+                first_aid: {
+                    english: "Have person sit with head between knees",
+                    hindi: "घुटनों के बीच सिर रखकर बिठाएं",
+                    tamil: "முழங்காலுக்கு இடையே தலை வைத்து உட்காரவைக்கவும்"
+                }
+            },
+            'nausea': {
+                name: { english: "Nausea", hindi: "जी मिचलाना", tamil: "குமட்டல்" },
+                severity: "H",
+                confidence: 75,
+                advice: {
+                    english: "Eat light foods. Drink ginger tea.",
+                    hindi: "हल्का खाना खाएं। अदरक की चाय पिएं।",
+                    tamil: "எளிய உணவு சாப்பிடவும். இஞ்சி தேநீர் குடிக்கவும்."
+                },
+                first_aid: {
+                    english: "Give small amounts of clear fluids",
+                    hindi: "साफ तरल पदार्थ की छोटी मात्रा दें",
+                    tamil: "தெளிவான திரவங்களை சிறிய அளவில் கொடுக்கவும்"
+                }
+            },
+            'sprain': {
+                name: { english: "Sprain", hindi: "मोच", tamil: "சுளுக்கு" },
+                severity: "H",
+                confidence: 80,
+                advice: {
+                    english: "Rest the area and avoid strenuous activity. Apply ice for 10-15 minutes.",
+                    hindi: "प्रभावित हिस्से को आराम दें और अधिक मेहनत से बचें। 10-15 मिनट के लिए बर्फ लगाएं।",
+                    tamil: "பாதிக்கப்பட்ட பகுதியை ஓய்விடுங்கள் மற்றும் கடுமையான செயற்பாடுகளைத் தவிர்க்கவும். 10-15 நிமிடங்கள் பனிக்கட்டி பயன்படுத்தவும்."
+                },
+                first_aid: {
+                    english: "Rest, Ice, Compression, Elevation",
+                    hindi: "आराम, बर्फ, दबाव, ऊंचाई",
+                    tamil: "ஓய்வு, பனி, அமுக்கம், உயர்த்தல்"
+                }
+            },
+            'insect_bite': {
+                name: { english: "Insect Bite", hindi: "कीड़े का काटना", tamil: "பூச்சி கடித்தல்" },
+                severity: "H",
+                confidence: 85,
+                advice: {
+                    english: "Clean the area with soap and water. Apply soothing lotion if itchy.",
+                    hindi: "क्षेत्र को साबुन और पानी से साफ करें। खुजली होने पर आराम देने वाली लोशन लगाएं।",
+                    tamil: "பகுதியை சோப்பும் தணீரும் கொண்டு சுத்தம் செய்யவும். தொந்தரவு இருந்தால் சாந்தி லோஷன் பயன்படுத்தவும்."
+                },
+                first_aid: {
+                    english: "Wash, cold compress if swelling",
+                    hindi: "धोएं, सूजन होने पर ठंडी पट्टी",
+                    tamil: "சுத்தம் செய்யவும், வீக்கம் இருந்தால் குளிர் ஒத்தடம்"
+                }
+            },
+            'nose_bleed': {
+                name: { english: "Nose Bleed", hindi: "नकसीर", tamil: "மூக்கில் இரத்தம்" },
+                severity: "H",
+                confidence: 80,
+                advice: {
+                    english: "Sit upright and lean slightly forward. Pinch the soft part of the nose for 10 minutes.",
+                    hindi: "सीधे बैठें और हल्का आगे झुकें। नाक के मुलायम हिस्से को 10 मिनट के लिए दबाएं।",
+                    tamil: "நேராக உட்காருங்கள் மற்றும் சிறிது முன்னால் சாய்ந்து கொள்ளுங்கள். மூக்கின் மென்மையான பகுதியை 10 நிமிடங்கள் அழுத்தவும்."
+                },
+                first_aid: {
+                    english: "Sit upright, pinch nose, apply cold pack",
+                    hindi: "सीधे बैठें, नाक दबाएं, ठंडी पट्टी लगाएं",
+                    tamil: "நேராக உட்காரவும், மூக்கை அழுத்தவும், குளிர் ஒத்தடம்"
+                }
+            },
+            'eye_irritation': {
+                name: { english: "Eye Irritation", hindi: "आंखों में जलन", tamil: "கண் எரிச்சல்" },
+                severity: "H",
+                confidence: 75,
+                advice: {
+                    english: "Rinse eyes with clean water. Avoid rubbing. Remove contact lenses if present.",
+                    hindi: "आंखों को साफ पानी से धोएं। रगड़ें नहीं। यदि कॉन्टैक्ट लेंस हैं तो निकालें।",
+                    tamil: "கண்களை சுத்தமான தண்ணீரால் கழுவவும். உண்ணாதீர்கள். தொடர்பு லென்ஸ் இருந்தால் அகற்றவும்."
+                },
+                first_aid: {
+                    english: "Flush eyes with water, avoid rubbing",
+                    hindi: "पानी से धोएं, रगड़ने से बचें",
+                    tamil: "தண்ணீரால் கழுவவும், உண்ணாதீர்கள்"
+                }
+            },
+            'food_poisoning': {
+                name: { english: "Food Poisoning", hindi: "खराब खाना", tamil: "உணவு விஷம்" },
+                severity: "D",
+                confidence: 85,
+                advice: {
+                    english: "Stay hydrated with ORS. Eat bland foods. Monitor for severe symptoms.",
+                    hindi: "ORS से पानी पिएं। सादा भोजन खाएं। गंभीर लक्षणों पर ध्यान दें।",
+                    tamil: "ORS மூலம் நீரேற்றமாக இருக்கவும். எளிய உணவு சாப்பிடவும். தீவிர அறிகுறிகளைக் கவனிக்கவும்."
+                },
+                first_aid: {
+                    english: "Give ORS, light meals, rest",
+                    hindi: "ORS दें, हल्का भोजन, आराम",
+                    tamil: "ORS கொடுக்கவும், எளிய உணவு, ஓய்வு"
+                }
+            },
+            'dehydration': {
+                name: { english: "Dehydration", hindi: "निर्जलीकरण", tamil: "நீரிழப்பு" },
+                severity: "D",
+                confidence: 80,
+                advice: {
+                    english: "Drink ORS slowly. Rest in a cool place. Monitor urine output.",
+                    hindi: "ORS धीरे-धीरे पिएं। ठंडी जगह आराम करें। पेशाब की मात्रा देखें।",
+                    tamil: "ORS மெதுவாக குடிக்கவும். குளிர்ந்த இடத்தில் ஓய்வு எடுக்கவும். சிறுநீர் அளவைக் கண்காணிக்கவும்."
+                },
+                first_aid: {
+                    english: "Give ORS, keep cool, monitor hydration",
+                    hindi: "ORS दें, ठंडे रहें, निगरानी करें",
+                    tamil: "ORS கொடுக்கவும், குளிர்ச்சியான இடத்தில் இருங்கள், நீர் பராமரிப்பு"
+                }
+            },
+            'allergic_reaction': {
+                name: { english: "Allergic Reaction", hindi: "एलर्जी", tamil: "ஒவ்வாமை" },
+                severity: "D",
+                confidence: 75,
+                advice: {
+                    english: "Identify and remove allergen. Take antihistamine if available.",
+                    hindi: "एलर्जी का कारण पहचानें और हटाएं। उपलब्ध हो तो एंटीहिस्टामाइन लें।",
+                    tamil: "ஒவ்வாமை காரணத்தை கண்டறிந்து அகற்றவும். இருந்தால் ஆன்டிஹிஸ்டமைன் எடுத்துக்கொள்ளவும்."
+                },
+                first_aid: {
+                    english: "Remove allergen, antihistamine if needed",
+                    hindi: "एलर्जेन हटाएं, एंटीहिस्टामाइन लें",
+                    tamil: "ஒவ்வாமையை அகற்றவும், தேவையெனில் ஆன்டிஹிஸ்டமைன்"
+                }
+            },
+            'heat_stroke': {
+                name: { english: "Heat Stroke", hindi: "गर्मी लगना", tamil: "வெப்ப பக்கவாதம்" },
+                severity: "E",
+                confidence: 90,
+                advice: {
+                    english: "Move to cool place. Remove excess clothing. Rehydrate. Call emergency if severe.",
+                    hindi: "ठंडी जगह ले जाएं। अतिरिक्त कपड़े उतारें। पानी पिएं। गंभीर होने पर आपातकाल बुलाएं।",
+                    tamil: "குளிர்ந்த இடத்திற்கு நகர்த்தவும். கூடுதல் உடைகள் அகற்றவும். நீர் குடிக்கவும். தீவிரமானால் அவசர சேவை அழைக்கவும்."
+                },
+                first_aid: {
+                    english: "Cool environment, remove clothing, hydrate",
+                    hindi: "ठंडा स्थान, कपड़े हटाएं, पानी पिएं",
+                    tamil: "குளிர் இடம், உடைகள் அகற்று, நீர் குடி"
+                }
+            }
+        };
+
+        // Get translated text
+        function getText(key) {
+            return translations[key] && translations[key][currentLanguage] || key;
+        }
+
+        // Update UI language
+        function updateLanguage() {
+            document.getElementById('main-title').textContent = getText('welcome_title');
+            document.getElementById('disclaimer').textContent = getText('disclaimer');
+            document.getElementById('menu-diagnosis').textContent = getText('menu_diagnosis');
+            document.getElementById('menu-language').textContent = getText('menu_language');
+            document.getElementById('menu-symptoms').textContent = getText('menu_symptoms');
+            document.getElementById('menu-stats').textContent = getText('menu_stats');
+            document.getElementById('diagnosis-title').textContent = getText('diagnosis_title');
+            document.getElementById('symptoms-title').textContent = getText('symptoms_title');
+            document.getElementById('stats-title').textContent = getText('stats_title');
+            document.getElementById('back-btn').textContent = getText('back_menu');
+            document.getElementById('back-btn2').textContent = getText('back_menu');
+            document.getElementById('back-btn3').textContent = getText('back_menu');
+            document.getElementById('input-prompt').textContent = getText('describe_symptom');
+            document.getElementById('voice-btn').innerHTML = getText('voice_input');
+            document.getElementById('analyze-btn').textContent =  getText('analyze');
+            updateEmergencyButtonLabel();
+            
+            // Update placeholder text
+            document.getElementById('symptom-input').placeholder = 
+                currentLanguage === 'english' ? 'Type your symptom here...' :
+                currentLanguage === 'hindi' ? 'अपना लक्षण यहाँ टाइप करें...' :
+                'உங்கள் அறிகுறியை இங்கே தட்டச்சு செய்க...';
+        }
+
+        // Enhanced speech recognition with better language support
+        function initSpeechRecognition() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+                recognition.continuous = false;
+                recognition.interimResults = true;
+                recognition.maxAlternatives = 5;
+                
+                // Set language based on current selection
+                const langMapping = {
+                    'english': 'en-IN',
+                    'hindi': 'hi-IN',
+                    'tamil': 'ta-IN'
+                };
+                recognition.lang = langMapping[currentLanguage];
+                
+                recognition.onstart = function() {
+                    isListening = true;
+                    showVoiceStatus(getText('listening'), 'listening');
+                    document.getElementById('voice-btn').innerHTML = '🛑 ' + (currentLanguage === 'english' ? 'Stop' : currentLanguage === 'hindi' ? 'रोकें' : 'நிறுத்து');
+                };
+                
+                recognition.onresult = function(event) {
+                    let finalTranscript = '';
+                    let interimTranscript = '';
+                    
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        const transcript = event.results[i][0].transcript;
+                        if (event.results[i].isFinal) {
+                            finalTranscript += transcript;
+                        } else {
+                            interimTranscript += transcript;
+                        }
+                    }
+                    
+                    if (finalTranscript) {
+                        document.getElementById('symptom-input').value = finalTranscript.trim();
+                        
+                        const confidenceText = {
+                            'english': `Voice recognized: "${finalTranscript.trim()}"`,
+                            'hindi': `आवाज़ पहचानी गई: "${finalTranscript.trim()}"`,
+                            'tamil': `குரல் அங்கீகரிக்கப்பட்டது: "${finalTranscript.trim()}"`
+                        }[currentLanguage];
+                        
+                        showVoiceStatus(confidenceText, 'listening');
+                        
+                        usageStats.voiceQueries++;
+                        saveStats();
+                        
+                        setTimeout(() => {
+                            hideVoiceStatus();
+                            processSymptom();
+                        }, 1500);
+                    } else if (interimTranscript) {
+                        document.getElementById('symptom-input').value = interimTranscript.trim();
+                    }
+                };
+                
+                recognition.onerror = function(event) {
+                    console.log('Speech recognition error:', event.error);
+                    let errorMessage = getText('voice_error');
+                    showVoiceStatus(errorMessage, 'error');
+                    setTimeout(hideVoiceStatus, 4000);
+                };
+                
+                recognition.onend = function() {
+                    isListening = false;
+                    document.getElementById('voice-btn').innerHTML = getText('voice_input');
+                };
+            }
+        }
+
+        // Function to clear diagnosis screen
+        function clearDiagnosisScreen() {
+            document.getElementById('symptom-input').value = '';
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('results').innerHTML = '';
+            hideVoiceStatus();
+        }
+
+        // Language selection with voice recognition initialization
+        function selectLanguage(lang) {
+            currentLanguage = lang;
+            updateLanguage();
+            
+            // Clear any existing diagnosis data
+            clearDiagnosisScreen();
+            
+            showMainMenu();
+            
+            // Reinitialize speech recognition with new language
+            initSpeechRecognition();
+            
+            // Welcome message in selected language
+            const welcomeMessage = getText('welcome_title').replace(/[🏥]/g, '');
+            speakText(welcomeMessage);
+        }
+
+        // Enhanced text-to-speech
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                const langMapping = {
+                    'english': 'en-IN',
+                    'hindi': 'hi-IN', 
+                    'tamil': 'ta-IN'
+                };
+                
+                utterance.lang = langMapping[currentLanguage] || 'en-IN';
+                utterance.rate = 0.9;
+                utterance.pitch = 1.0;
+                utterance.volume = 0.8;
+                
+                const voices = speechSynthesis.getVoices();
+                const preferredVoice = voices.find(voice => 
+                    voice.lang.startsWith(utterance.lang.split('-')[0])
+                );
+                
+                if (preferredVoice) {
+                    utterance.voice = preferredVoice;
+                }
+                
+                speechSynthesis.speak(utterance);
+            }
+        }
+
+        // Show/hide screens
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        function showLanguageSelector() {
+            // Clear diagnosis data when going to language selector
+            clearDiagnosisScreen();
+            
+            showScreen('language-screen');
+        }
+
+        function showMainMenu() {
+            showScreen('main-screen');
+            updateStats();
+        }
+
+        function showSymptomDiagnosis() {
+            // Clear previous results when entering diagnosis screen
+            clearDiagnosisScreen();
+            
+            showScreen('diagnosis-screen');
+            document.getElementById('symptom-input').focus();
+        }
+
+        function showAllSymptoms() {
+            showScreen('symptoms-screen');
+            loadAllSymptoms();
+        }
+
+        function showUsageStats() {
+            showScreen('stats-screen');
+            updateStatsDisplay();
+        }
+
+        // Enhanced voice input with better language detection
+        function startVoiceInput() {
+            if (!recognition) {
+                const alertText = {
+                    'english': 'Speech recognition not supported. Please use Chrome browser.',
+                    'hindi': 'वॉइस पहचान समर्थित नहीं है। कृपया क्रोम ब्राउज़र का उपयोग करें।',
+                    'tamil': 'பேச்சு அங்கீகாரம் ஆதரிக்கப்படவில்லை. கிரோம் உலாவியைப் பயன்படுத்தவும்.'
+                }[currentLanguage];
+                alert(alertText);
+                return;
+            }
+            
+            if (isListening) {
+                recognition.stop();
+                return;
+            }
+            
+            // Update language before starting
+            const langMapping = {
+                'english': 'en-IN',
+                'hindi': 'hi-IN',
+                'tamil': 'ta-IN'
+            };
+            recognition.lang = langMapping[currentLanguage];
+            
+            try {
+                recognition.start();
+            } catch (error) {
+                console.error('Voice recognition start error:', error);
+                showVoiceStatus('Could not start voice recognition. Try again.', 'error');
+                setTimeout(hideVoiceStatus, 3000);
+            }
+        }
+
+        // Show voice status
+        function showVoiceStatus(message, className) {
+            const statusDiv = document.getElementById('voice-status');
+            statusDiv.textContent = message;
+            statusDiv.className = 'voice-status ' + className;
+            statusDiv.style.display = 'block';
+        }
+
+        function hideVoiceStatus() {
+            document.getElementById('voice-status').style.display = 'none';
+        }
+
+        // Process symptom input
+        function processSymptom() {
+            const symptomInput = document.getElementById('symptom-input').value.trim();
+            if (!symptomInput) {
+                alert('Please enter a symptom or use voice input');
+                return;
+            }
+
+            usageStats.totalQueries++;
+            saveStats();
+
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <div>${getText('processing')}</div>
+                </div>
+            `;
+            resultsDiv.style.display = 'block';
+
+            // Try to connect to backend first
+            fetch("https://jeevan-ai-7axw.onrender.com/predict", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    symptom: symptomInput,
+                    language: currentLanguage
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.result) {
+                    displayResult(data.result);
+                    usageStats.successfulMatches++;
+                } else {
+                    simulateDiagnosis(symptomInput);
+                }
+                saveStats();
+            })
+            .catch(error => {
+                console.log('Backend not available, using simulation');
+                simulateDiagnosis(symptomInput);
+            });
+        }
+
+        // Enhanced simulation with better symptom matching for all symptoms
+        function simulateDiagnosis(symptomInput) {
+            const input = symptomInput.toLowerCase().trim();
+            let matchedSymptom = null;
+            
+            // Create comprehensive matching patterns for all symptoms
+            const symptomPatterns = {
+                'fever': ['fever', 'fevar', 'fiver', 'temperature', 'temp', 'hot', 'बुखार', 'तापमान', 'गर्मी', 'काय्चल', 'காய்ச்சல்', 'வெப்பம்', 'சூடு'],
+                'common_cold': ['cold', 'common cold', 'flu', 'सर्दी', 'जुकाम', 'फ्लू', 'சளி', 'தடிமன்', 'காய்ச்சல்'],
+                'headache': ['headache', 'head', 'ache', 'migraine', 'सिरदर्द', 'सिर', 'माइग्रेन', 'तलैवली', 'தலைவலி', 'தலை', 'மைக்ரேன்'],
+                'stomach_pain': ['stomach', 'stomach pain', 'abdominal', 'belly', 'पेट', 'पेट दर्द', 'उदर', 'வயிறு', 'வயிற்றுவலி'],
+                'diarrhea': ['diarrhea', 'diarrhoea', 'loose', 'motion', 'दस्त', 'डायरिया', 'வயிற்றுப்போக்கு', 'வயிற்றுக் கடுப்பு'],
+                'cough': ['cough', 'cof', 'kof', 'throat', 'cold', 'खांसी', 'गला', 'सर्दी', 'इरुमल', 'இருமல்', 'தொண்டை', 'சளி'],
+                'snake_bite': ['snake', 'snake bite', 'serpent', 'सांप', 'सर्प', 'सांप का काटना', 'பாம்பு', 'பாம்பு கடித்தல்'],
+                'chest_pain': ['chest', 'chest pain', 'heart', 'छाती', 'छाती दर्द', 'दिल', 'நெஞ்சு', 'நெஞ்சு வலி', 'இதயம்'],
+                'high_fever': ['high fever', 'high temperature', 'तेज बुखार', 'अधिक तापमान', 'அதிக காய்ச்சல்', 'அதிக வெப்பம்'],
+                'pregnancy_care': ['pregnancy', 'pregnant', 'गर्भावस्था', 'गर्भवती', 'கர்ப்பம்', 'கர்ப்பிணி'],
+                'back_pain': ['back', 'back pain', 'spine', 'कमर', 'कमर दर्द', 'रीढ़', 'முதுகு', 'முதுகுவலி', 'முதுகெலும்பு'],
+                'cut_wound': ['cut', 'wound', 'injury', 'bleeding', 'कट', 'घाव', 'चोट', 'வெட்டு', 'காயம்', 'காயப்படுத்துதல்'],
+                'burn': ['burn', 'scald', 'fire', 'जला', 'आग', 'தீக்காயம்', 'தீப் பற்றுதல்'],
+                'vomiting': ['vomit', 'vomiting', 'throw up', 'उल्टी', 'वमन', 'வாந்தி', 'வாந்தியெடுத்தல்'],
+                'dizziness': ['dizzy', 'dizziness', 'vertigo', 'चक्कर', 'चक्कर आना', 'தலைச்சுற்றல்', 'மயக்கம்'],
+                'nausea': ['nausea', 'nauseous', 'queasy', 'जी मिचलाना', 'मतली', 'குமட்டல்', 'வாந்தி எடுக்கும் உணர்வு'],
+                'sprain': ['sprain', 'twist', 'strain', 'मोच', 'मरोड़', 'சுளுக்கு', 'திருகு'],
+                'insect_bite': ['insect', 'bug', 'bite', 'sting', 'कीड़ा', 'कीड़े का काटना', 'பூச்சி', 'பூச்சி கடித்தல்'],
+                'nose_bleed': ['nose', 'nosebleed', 'bleeding nose', 'नकसीर', 'नाक से खून', 'மூக்கு', 'மூக்கில் இரத்தம்'],
+                'eye_irritation': ['eye', 'eyes', 'irritation', 'redness', 'आंख', 'आंखों में जलन', 'கண்', 'கண் எரிச்சல்'],
+                'food_poisoning': ['food poisoning', 'poison', 'contaminated', 'खराब खाना', 'विषाक्त भोजन', 'உணவு விஷம்', 'விஷ உணவு'],
+                'dehydration': ['dehydration', 'dehydrated', 'thirst', 'निर्जलीकरण', 'प्यास', 'நீரிழப்பு', 'தாகம்'],
+                'allergic_reaction': ['allergy', 'allergic', 'reaction', 'एलर्जी', 'एलर्जी प्रतिक्रिया', 'ஒவ்வாமை', 'ஒவ்வாமை எதிர்வினை'],
+                'heat_stroke': ['heat stroke', 'heat exhaustion', 'sun stroke', 'गर्मी लगना', 'लू लगना', 'வெப்ப பக்கவாதம்', 'சூரிய அடி']
+            };
+            
+            // Check each symptom pattern
+            for (const [symptomKey, patterns] of Object.entries(symptomPatterns)) {
+                if (patterns.some(pattern => input.includes(pattern))) {
+                    matchedSymptom = symptoms[symptomKey];
+                    break;
+                }
+            }
+            
+            if (matchedSymptom) {
+                displayResult(matchedSymptom);
+                usageStats.successfulMatches++;
+                saveStats();
+            } else {
+                displayGeneralHealthTips();
+            }
+        }
+
+        // Display symptom result with enhanced language support
+        function displayResult(data) {
+            const resultsDiv = document.getElementById('results');
+            
+            const severityClass = data.severity;
+            const severityText = {
+                'H': {'english': '🏠 HOME CARE', 'hindi': '🏠 घरेलू देखभाल', 'tamil': '🏠 வீட்டில் பராமரிப்பு'},
+                'D': {'english': '👨‍⚕️ DOCTOR VISIT', 'hindi': '👨‍⚕️ डॉक्टर को दिखाएँ', 'tamil': '👨‍⚕️ மருத்துவரை அணுகவும்'},
+                'E': {'english': '🚨 EMERGENCY', 'hindi': '🚨 आपातकाल', 'tamil': '🚨 அவசரம்'}
+            }[data.severity][currentLanguage];
+
+            const symptomName = data.name && data.name[currentLanguage] ? data.name[currentLanguage] : data.name;
+            const advice = data.advice && data.advice[currentLanguage] ? data.advice[currentLanguage] : data.advice;
+            const firstAid = data.first_aid && data.first_aid[currentLanguage] ? data.first_aid[currentLanguage] : data.first_aid;
+
+            resultsDiv.innerHTML = `
+                <div class="symptom-card">
+                    <div class="symptom-header">
+                        <div class="symptom-name">${symptomName}</div>
+                        <div class="confidence">${data.confidence || 85}% ${getText('confidence_label')}</div>
+                    </div>
+                    
+                    <div class="severity ${severityClass}">
+                        ${getText('severity_label')}: ${severityText}
+                    </div>
+                    
+                    <div class="advice-section">
+                        <div class="section-title">${getText('advice_label')}</div>
+                        <div>${advice}</div>
+                    </div>
+                    
+                    <div class="advice-section">
+                        <div class="section-title">${getText('first_aid_label')}</div>
+                        <div>${firstAid}</div>
+                    </div>
+                </div>
+            `;
+            
+            resultsDiv.style.display = 'block';
+            
+            // Speak out the result in user's language
+            const resultText = `${symptomName}. ${severityText}. ${advice}. ${firstAid}`;
+            speakText(resultText);
+        }
+
+        // Display general health tips when no specific match is found
+        function displayGeneralHealthTips() {
+            const resultsDiv = document.getElementById('results');
+            
+            // Get 4 random health tips
+            const allTips = getText('general_health_tips');
+            const randomTips = [...allTips].sort(() => 0.5 - Math.random()).slice(0, 4);
+            
+            resultsDiv.innerHTML = `
+                <div class="general-advice">
+                    <h3>${getText('no_match')}</h3>
+                    <ul class="advice-list">
+                        ${randomTips.map(tip => `<li>${tip}</li>`).join('')}
+                    </ul>
+                    <p style="margin-top: 15px; font-style: italic;">
+                        ${currentLanguage === 'english' ? 'If symptoms persist or worsen, please consult a healthcare professional.' : 
+                          currentLanguage === 'hindi' ? 'यदि लक्षण बने रहते हैं या बिगड़ते हैं, तो कृपया स्वास्थ्य देखभाल पेशेवर से सलाह लें।' :
+                          'அறிகுறிகள் தொடர்ந்து இருந்தால் அல்லது மோசமடைந்தால், தயவுசெய்து ஒரு சுகாதார நிபுணரைக் கலந்தாலோசிக்கவும்.'}
+                    </p>
+                </div>
+            `;
+            
+            resultsDiv.style.display = 'block';
+            
+            // Speak the health tips
+            const tipsText = getText('no_match') + '. ' + randomTips.join('. ');
+            speakText(tipsText);
+        }
+
+        // Load all symptoms with proper language support
+        function loadAllSymptoms() {
+            const symptomsList = document.getElementById('symptoms-list');
+            let html = '';
+            
+            // Convert symptoms object to array and sort by name
+            const symptomsArray = Object.values(symptoms).sort((a, b) => {
+                const aName = a.name[currentLanguage] || a.name.english || '';
+                const bName = b.name[currentLanguage] || b.name.english || '';
+                return aName.localeCompare(bName);
+            });
+            
+            symptomsArray.forEach(symptom => {
+                const symptomName = symptom.name && symptom.name[currentLanguage] ? symptom.name[currentLanguage] : symptom.name;
+                const advice = symptom.advice && symptom.advice[currentLanguage] ? symptom.advice[currentLanguage] : symptom.advice;
+                const severity = symptom.severity || 'H';
+                
+                const severityText = {
+                    'H': {
+                        'english': '🏠 Home Care',
+                        'hindi': '🏠 घरेलू देखभाल', 
+                        'tamil': '🏠 வீட்டில் பராமரிப்பு'
+                    },
+                    'D': {
+                        'english': '👨‍⚕️ Doctor Visit',
+                        'hindi': '👨‍⚕️ डॉक्टर को दिखाएँ',
+                        'tamil': '👨‍⚕️ மருத்துவரை அணுகவும்'
+                    },
+                    'E': {
+                        'english': '🚨 Emergency',
+                        'hindi': '🚨 आपातकाल',
+                        'tamil': '🚨 அவசரம்'
+                    }
+                }[severity][currentLanguage];
+
+                html += `
+                    <div class="symptom-item">
+                        <div>
+                            <strong>${symptomName}</strong>
+                            ${advice ? `<br><small>${advice.substring(0, 100)}${advice.length > 100 ? '...' : ''}</small>` : ''}
+                        </div>
+                        <div class="severity ${severity}">${severityText}</div>
+                    </div>
+                `;
+            });
+
+            symptomsList.innerHTML = html;
+        }
+
+        // Update statistics display
+        function updateStatsDisplay() {
+            document.getElementById('total-queries').textContent = usageStats.totalQueries;
+            document.getElementById('voice-queries').textContent = usageStats.voiceQueries;
+            document.getElementById('successful-matches').textContent = usageStats.successfulMatches;
+        }
+
+        // Update stats in main menu
+        function updateStats() {
+            const labels = {
+                'english': {queries: 'Total Queries', voice: 'Voice Queries', matches: 'Successful Matches'},
+                'hindi': {queries: 'कुल प्रश्न', voice: 'आवाज़ प्रश्न', matches: 'सफल मैच'},
+                'tamil': {queries: 'மொத்த கேள்விகள்', voice: 'குரல் கேள்விகள்', matches: 'வெற்றிகரமான பொருத்தங்கள்'}
+            };
+            
+            if (document.getElementById('queries-label')) {
+                document.getElementById('queries-label').textContent = labels[currentLanguage].queries;
+                document.getElementById('voice-label').textContent = labels[currentLanguage].voice;
+                document.getElementById('matches-label').textContent = labels[currentLanguage].matches;
+            }
+        }
+
+        // Emergency Alert Function
+        function emergencyAlert() {
+            const alertMessage = getText('emergency_alert');
+            
+            // Display emergency message in results div
+            const resultsDiv = document.getElementById('results');
+            if (resultsDiv) {
+                resultsDiv.innerHTML = `
+                    <div style="background: #ffebee; border: 2px solid #f44336; border-radius: 15px; padding: 25px; margin: 10px 0; text-align: center; box-shadow: 0 5px 15px rgba(244, 67, 54, 0.3);">
+                        <h3 style="color: #c62828; margin-bottom: 15px; font-size: 24px;">🚨 EMERGENCY ALERT</h3>
+                        <p style="color: #d32f2f; font-size: 18px; font-weight: bold; line-height: 1.4;">${alertMessage}</p>
+                        <div style="margin-top: 20px; padding: 15px; background: #fff; border-radius: 10px; border-left: 5px solid #f44336;">
+                            <p style="color: #666; font-size: 16px; margin: 0;">
+                                ${currentLanguage === 'english' ? '📞 Emergency helpline will be contacted automatically' : 
+                                  currentLanguage === 'hindi' ? '📞 आपातकालीन हेल्पलाइन से स्वचालित संपर्क किया जाएगा' :
+                                  '📞 அவசர ஹெல்ப்லைன் தானாகவே தொடர்பு கொள்ளப்படும்'}
+                            </p>
+                        </div>
+                    </div>
+                `;
+                resultsDiv.style.display = 'block';
+                resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            
+            // Text-to-Speech for emergency alert
+            speakEmergencyAlert(alertMessage);
+        }
+
+        // Text-to-Speech for Emergency Alert
+        function speakEmergencyAlert(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                
+                const utterance = new SpeechSynthesisUtterance(text);
+                
+                const langMapping = {
+                    'english': 'en-US',
+                    'hindi': 'hi-IN',
+                    'tamil': 'ta-IN'
+                };
+                
+                utterance.lang = langMapping[currentLanguage] || 'en-US';
+                utterance.rate = 0.8;
+                utterance.pitch = 1.1;
+                utterance.volume = 1.0;
+                
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        // Update Emergency Button Labels
+        function updateEmergencyButtonLabel() {
+            const emergencyButtons = document.querySelectorAll('#emergencyBtn, #emergencyBtnMain');
+            emergencyButtons.forEach(button => {
+                if (button) {
+                    button.innerHTML = getText('emergency_button');
+                }
+            });
+        }
+
+        // Initialize everything when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initSpeechRecognition();
+            
+            if ('speechSynthesis' in window) {
+                speechSynthesis.onvoiceschanged = function() {
+                    // Voices loaded
+                };
+            }
+            
+            document.getElementById('symptom-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    processSymptom();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
