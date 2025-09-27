@@ -665,6 +665,10 @@
                 ]
             }
         };
+        function normalizeText(text) {
+    return text.toLowerCase().replace(/\s+/g, '').replace(/[^a-zA-Z\u0900-\u097F\u0B80-\u0BFF]/g, '');
+}
+
 
         // Symptom database with multilingual support
         const symptoms = {
@@ -1314,7 +1318,8 @@
                 saveStats();
             })
             .catch(error => {
-                console.log('Backend not available, using simulation');
+                const input = normalizeText(symptomInput);
+
                 simulateDiagnosis(symptomInput);
             });
         }
@@ -1354,11 +1359,12 @@
             
             // Check each symptom pattern
             for (const [symptomKey, patterns] of Object.entries(symptomPatterns)) {
-                if (patterns.some(pattern => input.includes(pattern))) {
-                    matchedSymptom = symptoms[symptomKey];
-                    break;
-                }
-            }
+    if (patterns.some(pattern => normalizeText(pattern).includes(input) || input.includes(normalizeText(pattern)))) {
+        matchedSymptom = symptoms[symptomKey];
+        break;
+    }
+}
+
             
             if (matchedSymptom) {
                 displayResult(matchedSymptom);
